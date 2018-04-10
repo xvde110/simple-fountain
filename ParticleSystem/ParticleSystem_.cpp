@@ -31,6 +31,9 @@ void ParticleSystem_::initSystem()
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)4);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)0);
+	glEnableVertexAttribArray(1);
+
 	//create shader
 	std::vector<GLuint> v;
 	v.push_back(Shader::createShader(GL_VERTEX_SHADER, "vertexShader.glsl"));
@@ -42,13 +45,14 @@ void ParticleSystem_::updateParticles()
 {
 	int NUM = currentNum;
 	for (int i = 0; i < NUM; i++) {
-		switch (particles[i].type)
+		int type = particles[i].type + 0.5;
+		switch (type)
 		{
 			case TYPE1: 
 			{
 				//origin create a new particle
 				if (currentNum >= MAX_NUM) continue;
-				particles[currentNum++] = Particle(TYPE2, Vector3(0, 0, 0), this->getRandVelocity(), this->getRandTime(),this->getRandSpeed());
+				particles[currentNum++] = Particle(TYPE2, Vector3(0, 0.01, 0), this->getRandVelocity(), this->getRandTime(),this->getRandSpeed());
 				break;
 			}
 			case TYPE2: 
@@ -56,14 +60,34 @@ void ParticleSystem_::updateParticles()
 				//normal particle die with more produce
 				//minus time and judge whether delete and create
 				particles[i].leftTime -= perTime;
-				if (particles[i].leftTime <= 0) {
+				if (particles[i].position.y <= 0.0) {
 					Vector3 v = particles[i].position;
 					particles[i] = particles[--currentNum];
-					/*particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime());
-					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime());
-					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime());
-					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime());*/
+					if (currentNum >= MAX_NUM) continue;
+					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime(), this->getRandSpeed());
+					if (currentNum >= MAX_NUM) continue;
+					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime(), this->getRandSpeed());
+					if (currentNum >= MAX_NUM) continue;
+					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime(), this->getRandSpeed());
+					if (currentNum >= MAX_NUM) continue;
+					particles[currentNum++] = Particle(TYPE3, v, this->getRandVelocity(), this->getRandTime(), this->getRandSpeed());
 				}
+				//update the position and speed
+				particles[i].speed.x += particles[i].velocity.x*perTime;
+				particles[i].speed.y += particles[i].velocity.y*perTime;
+				particles[i].speed.z += particles[i].velocity.z*perTime;
+				particles[i].position.x += particles[i].speed.x*perTime;
+				particles[i].position.y += particles[i].speed.y*perTime;
+				particles[i].position.z += particles[i].speed.z*perTime;
+				break;
+			}
+			case TYPE3:
+			{
+				//normal particle
+				//minus time and judge whether delete
+				particles[i].leftTime -= perTime;
+				if (particles[i].leftTime <= 0)
+					particles[i] = particles[--currentNum];
 				//update the position and speed
 				particles[i].speed.x += particles[i].velocity.x*perTime;
 				particles[i].speed.y += particles[i].velocity.y*perTime;
@@ -74,21 +98,8 @@ void ParticleSystem_::updateParticles()
 				//if get floor
 				if (particles[i].position.y <= 0.0) {
 					particles[i].position.y = 0.0;
-					particles[i].speed.y *= -0.5;
+					particles[i].speed.y *= -0.3;
 				}
-				break;
-			}
-			case TYPE3:
-			{
-				//normal particle
-				//minus time and judge whether delete
-				particles[i].leftTime -= perTime;
-				if (particles[i].leftTime <= 0)
-					particles[i] = particles[--currentNum];
-				//update the position
-				particles[i].position.x += particles[i].velocity.x*0.1;
-				particles[i].position.y += particles[i].velocity.y*0.1;
-				particles[i].position.z += particles[i].velocity.z*0.1;
 			}
 
 		}
@@ -132,7 +143,7 @@ Vector3 ParticleSystem_::getRandVelocity()
 
 float ParticleSystem_::getRandTime()
 {
-	return 15.0;
+	return 3.0;
 }
 
 Vector3 ParticleSystem_::getRandSpeed()

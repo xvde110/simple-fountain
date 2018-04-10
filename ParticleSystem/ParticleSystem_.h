@@ -10,7 +10,7 @@
 
 struct Particle {
 	//type
-	GLint type;
+	float type;
 	//position in 3d
 	Vector3 position;
 	//direction
@@ -19,7 +19,7 @@ struct Particle {
 	float leftTime;
 	//speed
 	Vector3 speed;
-	Particle(int t,Vector3 pos,Vector3 vel,float time,Vector3 sp)
+	Particle(float t,Vector3 pos,Vector3 vel,float time,Vector3 sp)
 	{
 		type = t; position = pos; velocity = vel; leftTime = time; speed = sp;
 	}

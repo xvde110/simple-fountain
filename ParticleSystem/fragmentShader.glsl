@@ -2,6 +2,7 @@
 
 out vec4 color;
 
+in float Type;
 
 void main()
 {
@@ -14,5 +15,10 @@ void main()
 		discard;
 
 	color=mix(color1,color2,smoothstep(0.1,0.25,f));
-	color=vec4(0.0,0.0,1.0,1.0);
+	
+	if(abs(Type-2.0)<0.0001 || abs(Type-1.0)<0.0001)
+		color=vec4(1,0,0,1);
+	else
+		color=vec4(0,1,0,1);
+
 }
